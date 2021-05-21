@@ -40,7 +40,7 @@ public class PictureAnalyzer extends Picture {
               int count = y - i != 0 ? x - j + (y - i == -1 ? 1 : 6) : x - j > 0 ? 4 : 3;
               //System.out.println(count);
               Neuron subneuron = neuron.getSubneurons()[count];
-              if (subneuron.getWeight() < STATIC.threshold) return false;
+              if (subneuron.getWeight() < STATIC.THRESHOLD) return false;
             }
         }
       }
