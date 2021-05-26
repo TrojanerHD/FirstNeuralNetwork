@@ -61,7 +61,7 @@ public class NeuralNetwork {
         float[] hiddenLayerDeltas = new float[this.numberHiddenLayer1Neurons]; // new int[9]
         for (int j = 0; j < this.outputLayerWeights[0].length; j++)
           hiddenLayerDeltas[j] = outputDelta * this.outputLayerWeights[0][j];
-        
+
         this.changeWeights(this.hiddenLayer1Weights, hiddenLayerDeltas, input); // hiddenLayer1Weights = input
         this.changeWeights(this.outputLayerWeights, new float[] { outputDelta }, hiddenLayer1Values); //
         System.out.println(String.format("Output Error: %s%nHidden layer weights:", outputDelta));
@@ -92,16 +92,13 @@ public class NeuralNetwork {
     this.hiddenLayer1Weights = new float[this.numberHiddenLayer1Neurons][this.inputSet[0].length];
     this.outputLayerWeights = new float[this.numberOutputNeurons][this.numberHiddenLayer1Neurons];
     Random r = new Random();
-    for (int i = 0; i < hiddenLayer1Weights.length; i++) {
-      for (int j = 0; j < hiddenLayer1Weights[i].length; j++) {
+    for (int i = 0; i < hiddenLayer1Weights.length; i++)
+      for (int j = 0; j < hiddenLayer1Weights[i].length; j++)
         hiddenLayer1Weights[i][j] = r.nextFloat() * 2 - 1;
-      }
-    }
-    for (int i = 0; i < outputLayerWeights.length; i++) {
-      for (int j = 0; j < outputLayerWeights[i].length; j++) {
+
+    for (int i = 0; i < outputLayerWeights.length; i++)
+      for (int j = 0; j < outputLayerWeights[i].length; j++)
         outputLayerWeights[i][j] = r.nextFloat() * 2 - 1;
-      }
-    }
   }
 
   public boolean getOutput() {
