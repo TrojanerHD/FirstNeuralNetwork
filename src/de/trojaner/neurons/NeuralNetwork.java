@@ -3,12 +3,13 @@ package de.trojaner.neurons;
 import java.util.List;
 import java.util.Random;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class NeuralNetwork {
   private float[][] hiddenLayer1Weights;
   private float[][] outputLayerWeights;
   private int numberHiddenLayer1Neurons = 15;
-  private int numberOutputNeurons = 1;
+  private int numberOutputNeurons = 3;
   private float[][] inputSet;
   private List<float[]> hiddenLayer1ValuesPerRun = new ArrayList<>();
 
@@ -22,7 +23,7 @@ public class NeuralNetwork {
     this.initWeights();
   }
 
-  public boolean solve(float[] input) {
+  public float[] solve(float[] input) {
     float[] hiddenLayer1Values = new float[numberHiddenLayer1Neurons];
     for (int i = 0; i < numberHiddenLayer1Neurons; i++) {
       float tempValue = 0;
@@ -44,7 +45,7 @@ public class NeuralNetwork {
 
     }
 
-    return outputs[0] >= STATIC.THRESHOLD;
+    return outputs;
   }
 
   private float sigmoid(float x) {
@@ -55,12 +56,12 @@ public class NeuralNetwork {
     return x * (1 - x);
   }
 
-  public void learn(List<Boolean> expectedOutputs, int iterations) {
+  public void learn(List<float[]> expectedOutputs, int iterations) {
     for (int iteration = 0; iteration < iterations; iteration++) {
       StringBuilder debug = new StringBuilder("Iteration: ").append(iteration).append(" Wrong: ");
       List<Integer> wrong = new ArrayList<>();
       // System.out.println("Iteration: " + iteration);
-      List<Boolean> results = new ArrayList<>();
+      List<float[]> results = new ArrayList<>();
       for (float[] inputs : this.inputSet)
         results.add(this.solve(inputs));
 
@@ -68,9 +69,9 @@ public class NeuralNetwork {
         return;
       for (int i = 0; i < results.size(); i++) {
         // System.out.println(String.format("Index: %d", i));
-        boolean result = results.get(i);
-        boolean expectedOutput = expectedOutputs.get(i);
-        if (result == expectedOutput)
+        float[] result = results.get(i);
+        float[] expectedOutput = expectedOutputs.get(i);
+        if (Arrays.equals(result, expectedOutput))
           continue; // outputDelta == 0
 
         wrong.add(i);
@@ -79,13 +80,18 @@ public class NeuralNetwork {
 
         float[] input = this.inputSet[i];
 
-        float outputDelta = result ? 1 : -1;
+        float[] outputDeltas = new float[expectedOutput.length];
+        int count = 0;
+        for (float output : expectedOutput)
+          outputDeltas[count] = output - result[count++];
+
         float[] hiddenLayer1Deltas = new float[this.numberHiddenLayer1Neurons]; // new int[9]
-        for (int j = 0; j < this.outputLayerWeights[0].length; j++)
-          hiddenLayer1Deltas[j] = outputDelta * this.outputLayerWeights[0][j] * deriv(hiddenLayer1Values[j]);
+        for (int j = 0; j < this.outputLayerWeights.length; j++)
+          for (int k = 0; k < this.outputLayerWeights[j].length; k++)
+            hiddenLayer1Deltas[k] = outputDeltas[j] * this.outputLayerWeights[j][k] * deriv(hiddenLayer1Values[k]);
 
         this.changeWeights(this.hiddenLayer1Weights, hiddenLayer1Deltas, input); // hiddenLayer1Weights = input
-        this.changeWeights(this.outputLayerWeights, new float[] { outputDelta }, hiddenLayer1Values); //
+        this.changeWeights(this.outputLayerWeights, outputDeltas, hiddenLayer1Values); //
         // System.out.println(String.format("Output Error: %s%nHidden layer weights:",
         // outputDelta));
         // this.printWeights(hiddenLayer1Weights);
@@ -93,7 +99,7 @@ public class NeuralNetwork {
         // this.printWeights(outputLayerWeights);
       }
       debug.append(wrong);
-      System.out.println(debug.toString());
+      //System.out.println(debug.toString());
     }
   }
 
@@ -101,7 +107,7 @@ public class NeuralNetwork {
     for (int i = 0; i < weights.length; i++) {
       float delta = deltas[i];
       for (int j = 0; j < weights[i].length; j++)
-        weights[i][j] -= STATIC.SCALE * delta * input[j];
+        weights[i][j] += STATIC.SCALE * delta * input[j];
     }
   }
 
