@@ -8,7 +8,7 @@ import java.util.Arrays;
 public class NeuralNetwork {
   private float[][] hiddenLayer1Weights;
   private float[][] outputLayerWeights;
-  private int numberHiddenLayer1Neurons = 15;
+  private int numberHiddenLayer1Neurons = 30;
   private int numberOutputNeurons = 3;
   private float[][] inputSet;
   private List<float[]> hiddenLayer1ValuesPerRun = new ArrayList<>();
@@ -85,7 +85,7 @@ public class NeuralNetwork {
         for (float output : expectedOutput)
           outputDeltas[count] = output - result[count++];
 
-        float[] hiddenLayer1Deltas = new float[this.numberHiddenLayer1Neurons]; // new int[9]
+        float[] hiddenLayer1Deltas = new float[this.numberHiddenLayer1Neurons];
         for (int j = 0; j < this.outputLayerWeights.length; j++)
           for (int k = 0; k < this.outputLayerWeights[j].length; k++)
             hiddenLayer1Deltas[k] = outputDeltas[j] * this.outputLayerWeights[j][k] * deriv(hiddenLayer1Values[k]);
