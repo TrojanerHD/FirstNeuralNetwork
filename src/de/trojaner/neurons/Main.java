@@ -11,7 +11,7 @@ public class Main {
   public static void main(String[] args) {
 
     try {
-      var test = "ab";
+      var test = "ab-better";
       Path inputPath = Paths.get("input-presets", test);
       Path aPath = inputPath.resolve("a");
       Path bPath = inputPath.resolve("b");
@@ -30,13 +30,13 @@ public class Main {
       NeuralNetwork network = new NeuralNetwork(inputs);
       List<float[]> expectedOutputs = new ArrayList<>();
       for (File aFile : aFiles)
-        expectedOutputs.add(new float[]{1, 0, 0});
+        expectedOutputs.add(new float[] { 1, 0, 0 });
 
       for (File bFile : bFiles)
-        expectedOutputs.add(new float[]{0, 1, 0});
+        expectedOutputs.add(new float[] { 0, 1, 0 });
 
       for (File incorrectFile : incorrectFiles)
-        expectedOutputs.add(new float[]{0, 0, 1});
+        expectedOutputs.add(new float[] { 0, 0, 1 });
 
       network.learn(expectedOutputs, 10000);
 
@@ -56,11 +56,14 @@ public class Main {
     int i = 0;
     for (float value : output) {
       switch (i++) {
-        case 0: readableOutput.append("A");
-        break;
-        case 1: readableOutput.append("B");
-        break;
-        case 2: readableOutput.append("Nothing");
+        case 0:
+          readableOutput.append("A");
+          break;
+        case 1:
+          readableOutput.append("B");
+          break;
+        case 2:
+          readableOutput.append("Nothing");
       }
       readableOutput.append(": ").append(Math.round(value * 100)).append("% ");
     }
