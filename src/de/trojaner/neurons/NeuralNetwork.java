@@ -5,6 +5,9 @@ import java.util.Random;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * The class for the neural network
+ */
 public class NeuralNetwork {
   private float[][] hiddenLayer1Weights;
   private float[][] outputLayerWeights;
@@ -13,16 +16,22 @@ public class NeuralNetwork {
   private float[][] inputSet;
   private List<float[]> hiddenLayer1ValuesPerRun = new ArrayList<>();
 
-  public NeuralNetwork(float numberOfHiddenLayers, float[][] inputSet) {
-    this.inputSet = inputSet;
-    this.initWeights();
-  }
-
+  /**
+   * Intializes a neural network and weights for the neurons
+   * 
+   * @param inputSet The set of inputs to analyze
+   */
   public NeuralNetwork(float[][] inputSet) {
     this.inputSet = inputSet;
     this.initWeights();
   }
 
+  /**
+   * Uses the neural network to get an output to a provided input
+   * 
+   * @param input The input to use
+   * @return The output to the input
+   */
   public float[] solve(float[] input) {
     float[] hiddenLayer1Values = new float[numberHiddenLayer1Neurons];
     for (int i = 0; i < numberHiddenLayer1Neurons; i++) {
@@ -35,42 +44,58 @@ public class NeuralNetwork {
 
     hiddenLayer1ValuesPerRun.add(hiddenLayer1Values);
 
-    float[] outputs = new float[numberOutputNeurons];
+    float[] outputs = new float[this.numberOutputNeurons];
     for (int i = 0; i < outputs.length; i++) {
       float tempValue = 0;
       for (int j = 0; j < hiddenLayer1Values.length; j++)
         tempValue += hiddenLayer1Values[j] * outputLayerWeights[i][j];
 
       outputs[i] = sigmoid(tempValue);
-
     }
-
     return outputs;
   }
 
+  /**
+   * The sigmoid function to normalize neuron values between 0 and 1
+   * 
+   * @param x The neuron value
+   * @return The normalized value using the sigmoid function
+   */
   private float sigmoid(float x) {
     return (float) (1d / (1 + Math.exp(-x)));
   }
 
+  /**
+   * The derivative of the sigmoid function used for backward propagation
+   * 
+   * @param x The neuron value
+   * @return The modified value using the derivative
+   */
   private float deriv(float x) {
     return x * (1 - x);
   }
 
-  public void learn(List<float[]> expectedOutputs, int iterations) {
+  /**
+   * Lets the network learn and changes weights to work for new inputs of the same
+   * problem
+   * 
+   * @param expectedOutputs The expected outputs arranged in a matrix
+   * @param iterations      The number of iterations the network should learn
+   */
+  public void learn(float[][] expectedOutputs, int iterations) {
     for (int iteration = 0; iteration < iterations; iteration++) {
       StringBuilder debug = new StringBuilder("Iteration: ").append(iteration).append(" Wrong: ");
       List<Integer> wrong = new ArrayList<>();
-      // System.out.println("Iteration: " + iteration);
-      List<float[]> results = new ArrayList<>();
+      float[][] results = new float[this.inputSet.length][this.numberOutputNeurons];
+      int count = 0;
       for (float[] inputs : this.inputSet)
-        results.add(this.solve(inputs));
+        results[count++] = this.solve(inputs);
 
-      if (expectedOutputs.equals(results))
+      if (Arrays.equals(expectedOutputs, results))
         return;
-      for (int i = 0; i < results.size(); i++) {
-        // System.out.println(String.format("Index: %d", i));
-        float[] result = results.get(i);
-        float[] expectedOutput = expectedOutputs.get(i);
+      for (int i = 0; i < results.length; i++) {
+        float[] result = results[i];
+        float[] expectedOutput = expectedOutputs[i];
         if (Arrays.equals(result, expectedOutput))
           continue; // outputDelta == 0
 
@@ -81,7 +106,7 @@ public class NeuralNetwork {
         float[] input = this.inputSet[i];
 
         float[] outputDeltas = new float[expectedOutput.length];
-        int count = 0;
+        count = 0;
         for (float output : expectedOutput)
           outputDeltas[count] = output - result[count++];
 
@@ -92,17 +117,19 @@ public class NeuralNetwork {
 
         this.changeWeights(this.hiddenLayer1Weights, hiddenLayer1Deltas, input); // hiddenLayer1Weights = input
         this.changeWeights(this.outputLayerWeights, outputDeltas, hiddenLayer1Values); //
-        // System.out.println(String.format("Output Error: %s%nHidden layer weights:",
-        // outputDelta));
-        // this.printWeights(hiddenLayer1Weights);
-        // System.out.println("Output layer weights:");
-        // this.printWeights(outputLayerWeights);
       }
       debug.append(wrong);
-      //System.out.println(debug.toString());
+      // System.out.println(debug.toString());
     }
   }
 
+  /**
+   * Change weights to delta * input
+   * 
+   * @param weights The weights to change
+   * @param deltas  The deltas for each weight
+   * @param input   The input of each neuron in the previous layer
+   */
   private void changeWeights(float[][] weights, float[] deltas, float[] input) {
     for (int i = 0; i < weights.length; i++) {
       float delta = deltas[i];
@@ -111,14 +138,9 @@ public class NeuralNetwork {
     }
   }
 
-  private void printWeights(float[][] weights) {
-    for (int i = 0; i < weights.length; i++) {
-      System.out.println(String.format("%nNeuron: %d", i));
-      for (int j = 0; j < weights[i].length; j++)
-        System.out.println(weights[i][j]);
-    }
-  }
-
+  /**
+   * Initializes weights by giving them random float values between -1 and 1
+   */
   private void initWeights() {
     this.hiddenLayer1Weights = new float[this.numberHiddenLayer1Neurons][this.inputSet[0].length];
     this.outputLayerWeights = new float[this.numberOutputNeurons][this.numberHiddenLayer1Neurons];
@@ -130,5 +152,14 @@ public class NeuralNetwork {
     for (int i = 0; i < outputLayerWeights.length; i++)
       for (int j = 0; j < outputLayerWeights[i].length; j++)
         outputLayerWeights[i][j] = r.nextFloat() * 2 - 1;
+  }
+
+  /**
+   * Get the number of neurons in the output layer
+   * 
+   * @return The number of neurons in the output layer
+   */
+  public int getNumberOfOutputNeurons() {
+    return this.numberOutputNeurons;
   }
 }
