@@ -65,6 +65,7 @@ public class Main {
       for (File incorrectFile : incorrectFiles)
         expectedOutputs[i++] = new float[] { 0, 0, 1 };
 
+      System.out.println("Training…");
       // Let the network learn with the expected outputs with a set amount of
       // iterations
       network.learn(expectedOutputs, 10000);
@@ -102,6 +103,7 @@ public class Main {
     int i = 0;
     // Check for each value of the output neurons
     for (float value : output) {
+      readableOutput.append("\n  ");
       switch (i++) {
         case 0:
           // Append "A" if it is the first neuron
